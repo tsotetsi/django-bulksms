@@ -5,7 +5,7 @@ import requests
 from config import url, url_batch, username, password
 
 
-headers = ({'Content-Type':'application/x-www-form-urlencode'})
+headers = ({'Content-Type': 'application/x-www-form-urlencode'})
 
 
 def clean_msisdn(number):
@@ -21,11 +21,14 @@ def send(msisdn, message):
     @return: Request results in pipe format [statusCode|statusString]
     """
 
-    payload = ({'username':username,
-                'password':password,
-                'msisdn': clean_msisdn(msisdn),
-                'message': message
-               })
+    payload = (
+                {
+                    'username': username,
+                    'password': password,
+                    'msisdn': clean_msisdn(msisdn),
+                    'message': message
+                }
+              )
 
     try:
         r = requests.post(url, params=payload, headers=headers)
@@ -34,7 +37,7 @@ def send(msisdn, message):
             return "Bad response status"
         result = r.content.split('|')
     except requests.exceptions.Timeout:
-        #TODO
+        # TODO
         return "Setup a retry or continue in retry loop"
 
     except requests.exceptions.TooManyRedirects:
@@ -50,13 +53,13 @@ def read_cvs(filename=None):
     """
     Read CVS File.
     """
-    batch = ""
+    data = ""
     with open(filename) as file:
 
-        for line in file:
-            batch += line.replace("\"","%22").replace("\n", "%0a").replace(" ","+")
+        for _ in file:
+            data += _.replace("\"", "%22").replace("\n", "%0a").replace(" ", "+")
 
-    return batch
+    return data
 
 
 def send_bulk(filename=None):
@@ -70,7 +73,7 @@ def send_bulk(filename=None):
             return "Bad response status"
         result = r.content.split('|')
     except requests.exceptions.Timeout:
-        #TODO
+        # TODO
         return "Setup a retry or continue in retry loop"
 
     except requests.exceptions.TooManyRedirects:
