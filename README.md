@@ -1,2 +1,4 @@
 # django-bulksms
-Django bulksms.com sending
+
+Django bulk SMS sending.
+=======================
