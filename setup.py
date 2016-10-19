@@ -1,5 +1,7 @@
 import os
-from setuptools import setup, find_packages
+from setuptools import setup
+
+import bulksms
 
 
 with open(os.path.join(os.path.dirname(__file__), 'README.md')) as readme:
@@ -13,9 +15,9 @@ setup(
     name='django-bulksms',
     description='Django BulkSMS library/API.',
     long_description='Django BulkSMS library/API',
-    version='0.0.1',
-    package_dir={'': 'src'},
-    packages=find_packages('src'),
+    version=bulksms.__version__,
+    package_dir={'bulksms': ''},
+    packages=['bulksms'],
     include_package_data=True,
     zip_safe=False,
     install_requires=[
