@@ -34,7 +34,8 @@ setup(
     zip_safe=False,
     install_requires=[
         'Django',
-        'requests'
+        'requests',
+        'phonenumbers'
     ],
     author='Thapelo Tsotetsi',
     author_email='info@thapelotsotetsi.co.za',

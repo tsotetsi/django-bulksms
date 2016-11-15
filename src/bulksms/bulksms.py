@@ -2,6 +2,7 @@ from __future__ import print_function
 import logging
 
 import requests
+import phonenumbers
 
 from config import url, url_batch, username, password
 
@@ -10,14 +11,20 @@ headers = ({'Content-Type': 'application/x-www-form-urlencode'})
 logger = logging.getLogger('bulksms')
 
 
-def clean_msisdn(number):
-    pass
+def clean_msisdn(phone_number=None):
+    """
+    Clean mobile number
+    :param phone_number: str
+    :return: phone numbe representation including country code.
+    """
+    msisdn = phonenumbers.parse(phone_number)
+    return int(str(msisdn.country_code) + str(msisdn.national_number))
 
 
-def send(msisdn, message):
+def send(msisdn=None, message=None):
     """
     Send SMS to any number in several countries.
-    :param str msisdn number.
+    :param msisdn number. str
         The number to send to using international format.
     :param str message the message to be sent to msisdn.
     @return: Request results in pipe format [statusCode|statusString]
