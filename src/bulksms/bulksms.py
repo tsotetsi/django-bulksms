@@ -1,4 +1,5 @@
 from __future__ import print_function
+import logging
 
 import requests
 
@@ -6,6 +7,7 @@ from config import url, url_batch, username, password
 
 
 headers = ({'Content-Type': 'application/x-www-form-urlencode'})
+logger = logging.getLogger('bulksms')
 
 
 def clean_msisdn(number):
@@ -21,14 +23,12 @@ def send(msisdn, message):
     @return: Request results in pipe format [statusCode|statusString]
     """
 
-    payload = (
-                {
-                    'username': username,
-                    'password': password,
-                    'msisdn': clean_msisdn(msisdn),
-                    'message': message
-                }
-              )
+    payload = ({
+                'username': username,
+                'password': password,
+                'msisdn': clean_msisdn(msisdn),
+                'message': message
+               })
 
     try:
         r = requests.post(url, params=payload, headers=headers)
@@ -44,7 +44,7 @@ def send(msisdn, message):
         return "URL used was not correct, Please try another"
 
     except requests.exceptions.RequestException as e:
-        print("Catastrophic error occured", e)
+        logging.error("Catastrophic error occurred.", e)
 
     return result
 
@@ -80,5 +80,5 @@ def send_bulk(filename=None):
         return "URL used was not correct, Please try another"
 
     except requests.exceptions.RequestException as e:
-        return "Catastrophic error occured "+e
+        logging.error("Catastrophic error occurred.", e)
     return result
