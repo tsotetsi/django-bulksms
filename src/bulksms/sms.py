@@ -4,7 +4,8 @@ import logging
 import requests
 import phonenumbers
 
-from config import url, url_batch, username, password
+from config import url_single, url_batch, username, password
+from utils import E164Validator
 
 
 headers = ({'Content-Type': 'application/x-www-form-urlencode'})
@@ -15,7 +16,7 @@ def clean_msisdn(phone_number=None):
     """
     Clean mobile number
     :param phone_number: str
-    :return: phone numbe representation including country code.
+    :return: phone number representation including country code.
     """
     msisdn = phonenumbers.parse(phone_number)
     return int(str(msisdn.country_code) + str(msisdn.national_number))
@@ -38,7 +39,7 @@ def send(msisdn=None, message=None):
                })
 
     try:
-        r = requests.post(url, params=payload, headers=headers)
+        r = requests.post(url_single, params=payload, headers=headers)
 
         if r.status_code < 200 or r.status_code >= 300:
             return "Bad response status"
