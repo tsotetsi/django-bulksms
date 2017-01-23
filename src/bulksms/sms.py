@@ -4,8 +4,7 @@ import logging
 import requests
 import phonenumbers
 
-from config import url_single, url_batch, username, password
-from utils import E164Validator
+from config import CONFIG
 
 
 headers = ({'Content-Type': 'application/x-www-form-urlencode'})
@@ -30,31 +29,31 @@ def send(msisdn=None, message=None):
     :param str message the message to be sent to msisdn.
     @return: Request results in pipe format [statusCode|statusString]
     """
+    if not CONFIG.BULK_SMS.CLEAN_MOBILR_NUMBERS:
+        msisdn = clean_msisdn(msisdn)
 
-    payload = ({
-                'username': username,
-                'password': password,
-                'msisdn': clean_msisdn(msisdn),
-                'message': message
-               })
-
+    payload = (
+        {
+            'username': CONFIG.get('BULK_SMS.AUTH.USERNAME', None),
+            'password': CONFIG.get('BULK_SMS.AUTH.PASSWORD', None),
+            'msisdn': msisdn,
+            'message': message
+        }
+    )
+    results = ''
     try:
-        r = requests.post(url_single, params=payload, headers=headers)
-
-        if r.status_code < 200 or r.status_code >= 300:
-            return "Bad response status"
-        result = r.content.split('|')
+        response = requests.post(CONFIG.BULK_SMS.URL.SINGLE, params=payload, headers=headers)
+        if response.status_code < 200 or response.status_code >= 300:
+            return 'Bad response status'
+        results = response.content.split('|')
     except requests.exceptions.Timeout:
         # TODO
-        return "Setup a retry or continue in retry loop"
-
+        return 'Setup a retry or continue in retry loop'
     except requests.exceptions.TooManyRedirects:
-        return "URL used was not correct, Please try another"
-
+        return 'URL used was not correct, Please try another'
     except requests.exceptions.RequestException as e:
-        logging.error("Catastrophic error occurred.", e)
-
-    return result
+        logging.error('Catastrophic error occurred.', e)
+    return results
 
 
 def read_cvs(filename=None):
@@ -63,10 +62,8 @@ def read_cvs(filename=None):
     """
     data = ""
     with open(filename) as file:
-
         for _ in file:
             data += _.replace("\"", "%22").replace("\n", "%0a").replace(" ", "+")
-
     return data
 
 
@@ -74,19 +71,23 @@ def send_bulk(filename=None):
     """
     Send bulk SMS.
      """
+    api_credentials = getattr(CONFIG.AUTH, '')
+    api_endpoint = getattr(CONFIG.BULK_SMS.URL.BATCH, '')
+    results = ''
     try:
-        url = url_batch+'?username='+username+'&password='+password+'&batch_data='+read_cvs(filename)
+        url = api_endpoint+'?username='+api_credentials.USERNAME+'&password='+api_credentials.PASSWORD+'&batch_data='+read_cvs(filename)
         r = requests.get(url, headers=headers)
         if r.status_code < 200 or r.status_code >= 300:
             return "Bad response status"
-        result = r.content.split('|')
+        results = r.content.split('|')
     except requests.exceptions.Timeout:
-        # TODO
-        return "Setup a retry or continue in retry loop"
+        # TODO: Setup a retry or continue in retry loop
+        return
 
     except requests.exceptions.TooManyRedirects:
-        return "URL used was not correct, Please try another"
+        # TODO: URL used was not correct, Please try another
+        return
 
     except requests.exceptions.RequestException as e:
         logging.error("Catastrophic error occurred.", e)
-    return result
+    return results
