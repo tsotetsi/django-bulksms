@@ -73,6 +73,13 @@ def read_cvs(filename=None):
 def send_bulk(filename=None):
     """
     Send bulk SMS.
+    The API expects a passed CSV file to be
+    in this format. receipent number & message:
+    |-----------------------------------------|
+      msisdn,message
+      "27831234567","Message 1"
+      "27831234566","Message 2"
+    |-----------------------------------------|
      """
     api_credentials = CONFIG.get(CONFIG.AUTH, '')
     api_endpoint = CONFIG(CONFIG.BULK_SMS.URL.BATCH, '')
