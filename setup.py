@@ -35,7 +35,8 @@ setup(
     install_requires=[
         'Django',
         'requests',
-        'phonenumbers'
+        'phonenumbers',
+        'tenacity'
     ],
     author='Thapelo Tsotetsi',
     author_email='info@thapelotsotetsi.co.za',

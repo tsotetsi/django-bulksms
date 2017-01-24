@@ -3,6 +3,8 @@ import logging
 
 import requests
 import phonenumbers
+from tenacity import retry, wait_fixed, TryAgain
+
 
 from config import CONFIG
 
@@ -21,6 +23,7 @@ def clean_msisdn(phone_number=None):
     return int(str(msisdn.country_code) + str(msisdn.national_number))
 
 
+@retry(wait=wait_fixed(2))
 def send(msisdn=None, message=None):
     """
     Send SMS to any number in several countries.
@@ -44,13 +47,13 @@ def send(msisdn=None, message=None):
     try:
         response = requests.post(CONFIG.BULK_SMS.URL.SINGLE, params=payload, headers=headers)
         if response.status_code < 200 or response.status_code >= 300:
-            return 'Bad response status'
+            return 'Bad response status. {}'.format(response.status_code)
         results = response.content.split('|')
-    except requests.exceptions.Timeout:
-        # TODO
-        return 'Setup a retry or continue in retry loop'
-    except requests.exceptions.TooManyRedirects:
-        return 'URL used was not correct, Please try another'
+    except (requests.exceptions.Timeout, requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as e:
+        logging.info(e)
+        raise TryAgain
+    except requests.exceptions.TooManyRedirects as e:
+        return 'URL used was not correct, Please try another. {}'.format(e)
     except requests.exceptions.RequestException as e:
         logging.error('Catastrophic error occurred.', e)
     return results
@@ -71,8 +74,8 @@ def send_bulk(filename=None):
     """
     Send bulk SMS.
      """
-    api_credentials = getattr(CONFIG.AUTH, '')
-    api_endpoint = getattr(CONFIG.BULK_SMS.URL.BATCH, '')
+    api_credentials = CONFIG.get(CONFIG.AUTH, '')
+    api_endpoint = CONFIG(CONFIG.BULK_SMS.URL.BATCH, '')
     results = ''
     try:
         url = api_endpoint+'?username='+api_credentials.USERNAME+'&password='+api_credentials.PASSWORD+'&batch_data='+read_cvs(filename)
