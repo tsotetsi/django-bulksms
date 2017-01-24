@@ -32,7 +32,7 @@ def send(msisdn=None, message=None):
     :param str message the message to be sent to msisdn.
     @return: Request results in pipe format [statusCode|statusString]
     """
-    if not CONFIG.BULK_SMS.CLEAN_MOBILR_NUMBERS:
+    if not CONFIG.BULK_SMS.CLEAN_MOBILE_NUMBERS:
         msisdn = clean_msisdn(msisdn)
 
     payload = (
