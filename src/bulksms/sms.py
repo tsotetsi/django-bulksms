@@ -17,7 +17,8 @@ username = CONFIG.get('BULK_SMS.AUTH.USERNAME', None)
 password = CONFIG.get('BULK_SMS.AUTH.PASSWORD', None)
 
 
-def clean_msisdn(phone_number=None):
+@staticmethod
+def clean_msisdn(phone_number):
     """
     Clean mobile number
     :param phone_number: str
@@ -27,8 +28,9 @@ def clean_msisdn(phone_number=None):
     return int(str(msisdn.country_code) + str(msisdn.national_number))
 
 
+@staticmethod
 @retry(wait=wait_fixed(2))
-def send_single(msisdn=None, message=None):
+def send_single(msisdn, message):
     """
 
     Send SMS to any number in several countries.
@@ -65,7 +67,8 @@ def send_single(msisdn=None, message=None):
     return results
 
 
-def read_cvs(filename=None):
+@staticmethod
+def read_cvs(filename):
     """
     Read CVS File.
     """
@@ -76,11 +79,15 @@ def read_cvs(filename=None):
     return data
 
 
-def send_bulk(filename=None):
+@staticmethod
+def send_bulk(filename):
     """
     Send bulk SMS.
     The API expects a passed CSV file to be
-    in this format. receipent number & message:
+    in this format. recipient number & message:4.
+
+    Batch data is passed as query-parameter using
+    an  HTTP get request.
 
     |-----------------------------------------|
       msisdn,message
