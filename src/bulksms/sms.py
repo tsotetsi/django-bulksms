@@ -12,6 +12,10 @@ from config import CONFIG
 headers = ({'Content-Type': 'application/x-www-form-urlencode'})
 logger = logging.getLogger('bulksms')
 
+# API credentials
+username = CONFIG.get('BULK_SMS.AUTH.USERNAME', None)
+password = CONFIG.get('BULK_SMS.AUTH.PASSWORD', None)
+
 
 def clean_msisdn(phone_number=None):
     """
@@ -24,21 +28,23 @@ def clean_msisdn(phone_number=None):
 
 
 @retry(wait=wait_fixed(2))
-def send(msisdn=None, message=None):
+def send_single(msisdn=None, message=None):
     """
+
     Send SMS to any number in several countries.
     :param msisdn number. str
         The number to send to using international format.
     :param str message the message to be sent to msisdn.
     @return: Request results in pipe format [statusCode|statusString]
+
     """
     if not CONFIG.BULK_SMS.CLEAN_MOBILE_NUMBERS:
         msisdn = clean_msisdn(msisdn)
 
     payload = (
         {
-            'username': CONFIG.get('BULK_SMS.AUTH.USERNAME', None),
-            'password': CONFIG.get('BULK_SMS.AUTH.PASSWORD', None),
+            'username': username,
+            'password': password,
             'msisdn': msisdn,
             'message': message
         }
@@ -55,7 +61,7 @@ def send(msisdn=None, message=None):
     except requests.exceptions.TooManyRedirects as e:
         return 'URL used was not correct, Please try another. {}'.format(e)
     except requests.exceptions.RequestException as e:
-        logging.error('Catastrophic error occurred.', e)
+        logging.error('Catastrophic error occurred. ', e)
     return results
 
 
@@ -75,29 +81,29 @@ def send_bulk(filename=None):
     Send bulk SMS.
     The API expects a passed CSV file to be
     in this format. receipent number & message:
+
     |-----------------------------------------|
       msisdn,message
       "27831234567","Message 1"
       "27831234566","Message 2"
     |-----------------------------------------|
+
      """
-    api_credentials = CONFIG.get(CONFIG.AUTH, '')
     api_endpoint = CONFIG(CONFIG.BULK_SMS.URL.BATCH, '')
     results = ''
     try:
-        url = api_endpoint+'?username='+api_credentials.USERNAME+'&password='+api_credentials.PASSWORD+'&batch_data='+read_cvs(filename)
-        r = requests.get(url, headers=headers)
-        if r.status_code < 200 or r.status_code >= 300:
-            return "Bad response status"
-        results = r.content.split('|')
-    except requests.exceptions.Timeout:
-        # TODO: Setup a retry or continue in retry loop
-        return
+        url = api_endpoint+'?username='+username+'&password='+password+'&batch_data='+read_cvs(filename)
+        response = requests.get(url, headers=headers)
+        if response.status_code < 200 or response.status_code >= 300:
+            return 'Bad response status. {}'.format(response.status_code)
+        results = response.content.split('|')
+    except (requests.exceptions.Timeout, requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as e:
+        logging.info(e)
+        raise TryAgain
 
-    except requests.exceptions.TooManyRedirects:
-        # TODO: URL used was not correct, Please try another
-        return
+    except requests.exceptions.TooManyRedirects as e:
+        return 'Url used was not correct, Please try another. {}'.format(e)
 
     except requests.exceptions.RequestException as e:
-        logging.error("Catastrophic error occurred.", e)
+        logging.error('Catastrophic error occurred.', e)
     return results
