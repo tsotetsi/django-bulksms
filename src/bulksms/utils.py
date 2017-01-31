@@ -1,6 +1,11 @@
-from django.core.validators import RegexValidator
+from errors import InvalidMSISDNError
+import re
 
 
-class E164Validator(RegexValidator):
-    regex = r'^\+\d{11,15}$'
-    message = "Number must comply to E.164 format. e.g '+27830000000' minimum 11 and maximum 15 digits."
+def validate_msisdn_e164(mobile_number):
+    pattern = re.compile('^\+\d{11,15}$')
+    message = "Number must comply to E.164 format. e.g '+27830000000' minimum 11 and maximum 15 digits"
+    if not re.match(pattern, mobile_number):
+        raise InvalidMSISDNError(message=message)
+
+    return mobile_number
