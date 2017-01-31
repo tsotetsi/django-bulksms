@@ -16,36 +16,45 @@ class InvalidMSISDNError(Error):
 
 
 class DailyQuotaExceededError(APIError):
+    """ Daily quota exceeded. """
     pass
 
 
 class UpstreamQuotaExceededError(APIError):
+    """ Upstream quota exceeded. """
     pass
 
 
 class FatalError(APIError):
+    """ Internal fatal error. """
     pass
 
 
 class AuthenticationError(Error):
+    """ Authentication failure. """
     pass
 
 
 class DataValidationError(APIError):
+    """ Data validation failed. """
     pass
 
 
 class NoSufficientCreditsError(APIError):
+    """ No sufficient credits. """
     pass
 
 
 class UpstreamCreditsNotAvailable(APIError):
+    """ Upstream credits not available. """
     pass
 
 
 class MaximumBatchExceededError(APIError):
+    """ Maximum batch size exceeded. """
     pass
 
 
 class UnavailableError(APIError):
+    """ Temporarily unavailable. """
     pass
