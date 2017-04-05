@@ -6,15 +6,15 @@ import phonenumbers
 from tenacity import retry, wait_fixed, TryAgain
 
 
-from config import CONFIG
+from config import AUTH, CLEAN_MOBILE_NUMBERS, URL_SENDING
 
 
 headers = ({'Content-Type': 'application/x-www-form-urlencode'})
 logger = logging.getLogger('bulksms')
 
 # API credentials
-username = CONFIG.get('BULK_SMS.AUTH.USERNAME', None)
-password = CONFIG.get('BULK_SMS.AUTH.PASSWORD', None)
+username = AUTH.get('username', None)
+password = AUTH.get('password', None)
 
 
 @staticmethod
@@ -40,7 +40,7 @@ def send_single(msisdn, message):
     @return: Request results in pipe format [statusCode|statusString]
 
     """
-    if not CONFIG.BULK_SMS.CLEAN_MOBILE_NUMBERS:
+    if not CLEAN_MOBILE_NUMBERS:
         msisdn = clean_msisdn(msisdn)
 
     payload = (
@@ -53,7 +53,7 @@ def send_single(msisdn, message):
     )
     results = ''
     try:
-        response = requests.post(CONFIG.BULK_SMS.URL.SINGLE, params=payload, headers=headers)
+        response = requests.post(URL_SENDING.get('single', None), params=payload, headers=headers)
         if response.status_code < 200 or response.status_code >= 300:
             return 'Bad response status. {}'.format(response.status_code)
         results = response.content.split('|')
@@ -96,7 +96,7 @@ def send_bulk(filename):
     |-----------------------------------------|
 
      """
-    api_endpoint = CONFIG(CONFIG.BULK_SMS.URL.BATCH, '')
+    api_endpoint = URL_SENDING.get('batch', None)
     results = ''
     try:
         url = api_endpoint+'?username='+username+'&password='+password+'&batch_data='+read_cvs(filename)
