@@ -32,13 +32,11 @@ def clean_msisdn(phone_number):
 @retry(wait=wait_fixed(2))
 def send_single(msisdn, message):
     """
-
     Send SMS to any number in several countries.
     :param msisdn number. str
         The number to send to using international format.
     :param str message the message to be sent to msisdn.
     @return: Request results in pipe format [statusCode|statusString]
-
     """
     if not CLEAN_MOBILE_NUMBERS:
         msisdn = clean_msisdn(msisdn)
