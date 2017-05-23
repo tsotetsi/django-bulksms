@@ -6,7 +6,7 @@ import phonenumbers
 from tenacity import retry, wait_fixed, TryAgain
 
 
-from config import AUTH, CLEAN_MOBILE_NUMBERS, URL_SENDING
+from settings import AUTH, CLEAN_MOBILE_NUMBERS, URL_SENDING
 
 
 headers = ({'Content-Type': 'application/x-www-form-urlencode'})
