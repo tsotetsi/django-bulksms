@@ -2,11 +2,11 @@ from __future__ import print_function
 import logging
 
 import requests
-import phonenumbers
 from tenacity import retry, wait_fixed, TryAgain
 
 
 from settings import AUTH, CLEAN_MOBILE_NUMBERS, URL_SENDING
+from utils import clean_msisdn, read_cvs
 
 
 headers = ({'Content-Type': 'application/x-www-form-urlencode'})
@@ -15,17 +15,6 @@ logger = logging.getLogger('bulksms')
 # API credentials
 username = AUTH.get('username', None)
 password = AUTH.get('password', None)
-
-
-@staticmethod
-def clean_msisdn(phone_number):
-    """
-    Clean mobile number
-    :param phone_number: str
-    :return: phone number representation including country code.
-    """
-    msisdn = phonenumbers.parse(phone_number)
-    return int(str(msisdn.country_code) + str(msisdn.national_number))
 
 
 @staticmethod
@@ -63,18 +52,6 @@ def send_single(msisdn, message):
     except requests.exceptions.RequestException as e:
         logging.error('Catastrophic error occurred. ', e)
     return results
-
-
-@staticmethod
-def read_cvs(filename):
-    """
-    Read CVS File.
-    """
-    data = ""
-    with open(filename) as file:
-        for _ in file:
-            data += _.replace("\"", "%22").replace("\n", "%0a").replace(" ", "+")
-    return data
 
 
 @staticmethod
