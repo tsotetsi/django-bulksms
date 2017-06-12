@@ -5,7 +5,7 @@ import requests
 from tenacity import retry, wait_fixed, TryAgain
 
 
-from settings import AUTH, CLEAN_MOBILE_NUMBERS, URL_SENDING
+from settings import AUTH, CLEAN_MSISDN_NUMBERS, BULK_SMS_URL
 from utils import clean_msisdn, read_cvs
 
 
@@ -27,7 +27,7 @@ def send_single(msisdn, message):
     :param str message the message to be sent to msisdn.
     @return: Request results in pipe format [statusCode|statusString]
     """
-    if not CLEAN_MOBILE_NUMBERS:
+    if CLEAN_MSISDN_NUMBERS:
         msisdn = clean_msisdn(msisdn)
 
     payload = (
@@ -40,7 +40,7 @@ def send_single(msisdn, message):
     )
     results = ''
     try:
-        response = requests.post(URL_SENDING.get('single', None), params=payload, headers=headers)
+        response = requests.post(BULK_SMS_URL.get('single', None), params=payload, headers=headers)
         if response.status_code < 200 or response.status_code >= 300:
             return 'Bad response status. {}'.format(response.status_code)
         results = response.content.split('|')
@@ -52,7 +52,6 @@ def send_single(msisdn, message):
     except requests.exceptions.RequestException as e:
         logging.error('Catastrophic error occurred. ', e)
     return results
-
 
 @staticmethod
 def send_bulk(filename):
@@ -69,9 +68,9 @@ def send_bulk(filename):
       "27831234567","Message 1"
       "27831234566","Message 2"
     |-----------------------------------------|
-
+    :param str filename containing list of msisdn and message.
      """
-    api_endpoint = URL_SENDING.get('batch', None)
+    api_endpoint = BULK_SMS_URL.get('batch', None)
     results = ''
     try:
         url = api_endpoint+'?username='+username+'&password='+password+'&batch_data='+read_cvs(filename)
