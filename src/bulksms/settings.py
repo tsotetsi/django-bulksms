@@ -12,6 +12,7 @@ BULKSMS_API_URL = {
     'batch': '/{}eapi/submission/send_batch/1/1.0'.format(BULKSMS_BASE_API_URL),  # sends batch SMS's.
     'single': '/{}eapi/submission/send_sms/2/2.0'.format(BULKSMS_BASE_API_URL),  # sends single SMS.
     'credits': '/{}user/get_credits/1/1.1'.format(BULKSMS_BASE_API_URL)  # SMS credits balance.
+    'inbox': '/{}reception/get_inbox/1/1.1'.format(BULKSMS_BASE_API_URL) # get inbox.
 }
 
 # Whether to automatically insert country codes before sending sms.
