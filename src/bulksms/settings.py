@@ -12,4 +12,4 @@ BULKSMS_API_URL = {
 }
 
 # Whether to automatically insert country codes before sending sms.
-CLEAN_MSISDN_NUMBERS = False
+CLEAN_MSISDN_NUMBER = False

@@ -18,11 +18,11 @@ password = getattr(settings, 'BULKSMS_AUTH_PASSWORD', '')
 bulksms_api_url = getattr(settings, 'BULKSMS_API_URL', '')
 
 # Whether to insert country codes or not.
-clean_msisdn_number = getattr(settings, 'CLEAN_MSISDN_NUMBERS', '')
+clean_msisdn_number = getattr(settings, 'CLEAN_MSISDN_NUMBER', '')
 
 
 @retry(wait=wait_fixed(2))
-def send_single(msisdn, message):
+def send_single(msisdn=None, message=None):
     """
     Send SMS to any number in several countries.
     :param msisdn number. str
@@ -57,7 +57,7 @@ def send_single(msisdn, message):
     return results
 
 
-def send_bulk(filename):
+def send_bulk(filename=None):
     """
     Send bulk SMS. The API expects a given CSV file to be in the format as show below.
 
