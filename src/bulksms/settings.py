@@ -1,14 +1,17 @@
 # BULKSMS Configuration.
 
+# BULKSMS base url.
+BULKSMS_BASE_API_URL = 'https://bulksms.2way.co.za'
+
 # Credentials required to use bulksms.com API.
 BULKSMS_AUTH_USERNAME = ''
 BULKSMS_AUTH_PASSWORD = ''
 
 # URL for sending single and batch sms.
 BULKSMS_API_URL = {
-    'batch': 'https://bulksms.2way.co.za/eapi/submission/send_batch/1/1.0',  # sends batch SMS's.
-    'single': 'https://bulksms.2way.co.za/eapi/submission/send_sms/2/2.0',  # sends single SMS.
-    'credits': 'https://bulksms.2way.co.za/user/get_credits/1/1.1'  # SMS credits balance.
+    'batch': '/{}eapi/submission/send_batch/1/1.0'.format(BULKSMS_BASE_API_URL),  # sends batch SMS's.
+    'single': '/{}eapi/submission/send_sms/2/2.0'.format(BULKSMS_BASE_API_URL),  # sends single SMS.
+    'credits': '/{}user/get_credits/1/1.1'.format(BULKSMS_BASE_API_URL)  # SMS credits balance.
 }
 
 # Whether to automatically insert country codes before sending sms.
