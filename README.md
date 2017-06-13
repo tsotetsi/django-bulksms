@@ -19,4 +19,4 @@ Django BulkSMS sending.
 
    To run the tests, run the command below:
 
-        pytest --ds=bulksms.settings_test
+        py.test --ds=bulksms.settings_test
