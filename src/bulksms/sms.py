@@ -73,7 +73,7 @@ def send_bulk(filename=None):
     api_endpoint = api_url.get('batch', None)
     results = ''
     try:
-        url = api_endpoint+'?username='+username+'&password='+password+'&batch_data='+read_cvs(filename)
+        url = '{}?username={}&password={}&batch_data={}'.format(api_endpoint, username, password, read_cvs(filename))
         response = requests.get(url, headers=headers)
         if response.status_code < 200 or response.status_code >= 300:
             return 'Bad response status. {}'.format(response.status_code)
