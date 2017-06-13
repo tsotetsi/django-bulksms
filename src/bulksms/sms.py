@@ -15,10 +15,10 @@ logger = logging.getLogger('bulksms')
 # API Authentication credentials.
 username = getattr(settings, 'BULKSMS_AUTH_USERNAME', '')
 password = getattr(settings, 'BULKSMS_AUTH_PASSWORD', '')
-bulksms_api_url = getattr(settings, 'BULKSMS_API_URL', '')
+api_url = getattr(settings, 'BULKSMS_API_URL', '')
 
 # Whether to insert country codes or not.
-clean_msisdn_number = getattr(settings, 'CLEAN_MSISDN_NUMBER', '')
+clean_msisdn_number = getattr(settings, 'CLEAN_MSISDN_NUMBER', False)
 
 
 @retry(wait=wait_fixed(2))
@@ -43,7 +43,7 @@ def send_single(msisdn=None, message=None):
     )
     results = ''
     try:
-        response = requests.post(bulksms_api_url.get('single', None), params=payload, headers=headers)
+        response = requests.post(api_url.get('single', None), params=payload, headers=headers)
         if response.status_code < 200 or response.status_code >= 300:
             return 'Bad response status. {}'.format(response.status_code)
         results = response.content.split('|')
@@ -70,7 +70,7 @@ def send_bulk(filename=None):
     |-----------------------------------------|
     :param filename :  contains a list of msisdn and message.
      """
-    api_endpoint = bulksms_api_url.get('batch', None)
+    api_endpoint = api_url.get('batch', None)
     results = ''
     try:
         url = api_endpoint+'?username='+username+'&password='+password+'&batch_data='+read_cvs(filename)
