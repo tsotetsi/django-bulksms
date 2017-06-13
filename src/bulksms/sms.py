@@ -5,19 +5,22 @@ import requests
 from tenacity import retry, wait_fixed, TryAgain
 
 
-from settings import AUTH, CLEAN_MSISDN_NUMBERS, BULK_SMS_URL
-from utils import clean_msisdn, read_cvs
+from django.conf import settings
+from .utils import clean_msisdn, read_cvs
 
 
 headers = ({'Content-Type': 'application/x-www-form-urlencode'})
 logger = logging.getLogger('bulksms')
 
-# API credentials
-username = AUTH.get('username', None)
-password = AUTH.get('password', None)
+# API Authentication credentials.
+username = getattr(settings, 'BULKSMS_AUTH_USERNAME', '')
+password = getattr(settings, 'BULKSMS_AUTH_PASSWORD', '')
+bulksms_api_url = getattr(settings, 'BULKSMS_API_URL', '')
+
+# Weather to insert country codes or not.
+clean_msisdn_number = getattr(settings, 'CLEAN_MSISDN_NUMBERS', '')
 
 
-@staticmethod
 @retry(wait=wait_fixed(2))
 def send_single(msisdn, message):
     """
@@ -27,7 +30,7 @@ def send_single(msisdn, message):
     :param str message the message to be sent to msisdn.
     @return: Request results in pipe format [statusCode|statusString]
     """
-    if CLEAN_MSISDN_NUMBERS:
+    if clean_msisdn_number:
         msisdn = clean_msisdn(msisdn)
 
     payload = (
@@ -40,7 +43,7 @@ def send_single(msisdn, message):
     )
     results = ''
     try:
-        response = requests.post(BULK_SMS_URL.get('single', None), params=payload, headers=headers)
+        response = requests.post(bulksms_api_url.get('single', None), params=payload, headers=headers)
         if response.status_code < 200 or response.status_code >= 300:
             return 'Bad response status. {}'.format(response.status_code)
         results = response.content.split('|')
@@ -53,24 +56,21 @@ def send_single(msisdn, message):
         logging.error('Catastrophic error occurred. ', e)
     return results
 
-@staticmethod
+
 def send_bulk(filename):
     """
-    Send bulk SMS.
-    The API expects a passed CSV file to be
-    in this format. recipient number & message:4.
+    Send bulk SMS. The API expects a given CSV file to be in the format as show below.
 
-    Batch data is passed as query-parameter using
-    an  HTTP get request.
+    Batch data is passed as query-parameters using an  HTTP get request.
 
     |-----------------------------------------|
       msisdn,message
       "27831234567","Message 1"
       "27831234566","Message 2"
     |-----------------------------------------|
-    :param str filename containing list of msisdn and message.
+    :param filename :  contains a list of msisdn and message.
      """
-    api_endpoint = BULK_SMS_URL.get('batch', None)
+    api_endpoint = bulksms_api_url.get('batch', None)
     results = ''
     try:
         url = api_endpoint+'?username='+username+'&password='+password+'&batch_data='+read_cvs(filename)

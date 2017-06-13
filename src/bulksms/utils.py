@@ -2,7 +2,7 @@ import re
 
 import phonenumbers
 
-from errors import InvalidMSISDNError
+from .errors import InvalidMSISDNError
 
 
 def clean_msisdn(phone_number):
