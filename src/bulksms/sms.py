@@ -17,7 +17,7 @@ username = getattr(settings, 'BULKSMS_AUTH_USERNAME', '')
 password = getattr(settings, 'BULKSMS_AUTH_PASSWORD', '')
 bulksms_api_url = getattr(settings, 'BULKSMS_API_URL', '')
 
-# Weather to insert country codes or not.
+# Whether to insert country codes or not.
 clean_msisdn_number = getattr(settings, 'CLEAN_MSISDN_NUMBERS', '')
 
 
