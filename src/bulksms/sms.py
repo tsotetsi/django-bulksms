@@ -5,7 +5,7 @@ import requests
 from tenacity import retry, wait_fixed, TryAgain
 
 from django.conf import settings
-from .utils import clean_msisdn, read_cvs
+from .utils import format_msisdn, read_cvs_file
 
 
 headers = ({'Content-Type': 'application/x-www-form-urlencode'})
@@ -30,7 +30,7 @@ def send_single(msisdn=None, message=None):
     @return: Request results in pipe format [statusCode|statusString]
     """
     if clean_msisdn_number:
-        msisdn = clean_msisdn(msisdn)
+        msisdn = format_msisdn(msisdn)
 
     payload = (
         {
@@ -72,7 +72,7 @@ def send_bulk(filename=None):
     api_endpoint = api_url.get('batch', None)
     results = ''
     try:
-        url = '{}?username={}&password={}&batch_data={}'.format(api_endpoint, username, password, read_cvs(filename))
+        url = '{}?username={}&password={}&batch_data={}'.format(api_endpoint, username, password, read_cvs_file(filename))
         response = requests.get(url, headers=headers)
         if response.status_code < 200 or response.status_code >= 300:
             return 'Bad request: {}'.format(response.status_code)
