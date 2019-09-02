@@ -1,4 +1,4 @@
 Django
 phonenumbers==7.7.4
-requests==2.11.1
+requests
 tenacity
